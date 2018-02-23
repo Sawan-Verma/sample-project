@@ -1,0 +1,92 @@
+/**
+ * SSN (Supplier switching network)
+ */
+
+namespace org.capita
+/**
+ * The type of utilities
+*/
+enum Utility {
+  o GAS
+  o PHONE
+  o BROADBAND
+  o ELECTRICITY
+}
+
+asset UtilityPassport identified by passportUniqueId {
+    o String passportUniqueId
+    --> Address address // optional
+}
+asset Address identified by propertyId {
+  	o String propertyId
+    o String passportUniqueId
+    o String city
+  	o String country
+  	o String street
+  	o String zip 
+    --> Consumer consumer optional // after creating an address we can add consumer to it
+  	--> UtilityDetail[] utilityDetail optional // after creating an address we can add consumer to it
+}
+/**
+ * A concept utility details
+ */
+asset UtilityDetail identified by utilityUniqueId {
+  o String utilityUniqueId // create uniqu ID
+  o Utility utilityType
+  o String propertyId // on which address it is being created
+  o String supplierId // what supplier servess this 
+  o String endDate
+  o String supplier
+}
+/**
+ * consumer is a participant
+*/
+participant Consumer identified by phoneNumber {
+    o String phoneNumber
+    o String propertyId optional // generated 
+    o String passportUniqueId // generated during registration
+    o String firstName
+    o String lastName
+    o String age
+    o String gender
+    o String[] txnId optional // list of utility history
+}
+/**
+ * Passport Authority is a participant which issues utilityPassport
+*/
+participant PassportAuthority identified by ID {
+    o String ID
+    o String[] supplierId
+    o String[] consumerId
+}
+/**
+ * supplier is another participant
+*/
+participant Supplier identified by supplierId {
+    o String supplierId
+    o String servicePoint
+    o String[] consumerID optional // phone number of consumers
+    o String[] txnId optional // list of consumer transcation history
+}
+asset ConsumerHistory identified by txnId {
+    o String txnId
+    o String paymentStatus
+    o String utilityPlan
+    o String preferneces
+    o String supplierId
+    o String consumerId // phone number of the consumer
+}
+transaction SubmitSwitchSupplier {
+    --> UtilityDetail UD
+    --> Supplier newSupplier
+    --> Consumer consumer
+}
+transaction SwitchSupplier {
+    --> UtilityDetail UD
+    --> Consumer consumer
+    --> Supplier newSupplier
+}
+transaction  Registration {
+  o String userType
+  o String userId
+}
